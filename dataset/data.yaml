@@ -1,0 +1,4 @@
+path: dataset
+train: images/train
+val: images/val
+names: {0: broken_wire, 1: dropped_wire, 2: insulator_damage, 3: tower_damage, 4: fallen_tower, 5: rust}

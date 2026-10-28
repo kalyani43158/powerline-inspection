@@ -1,0 +1,132 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI-Based Power-Line Inspection with a Drone</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#eef2f9;--nav:#071a33;--card:#fff;--ink:#0f1f3d;--mut:#64748b;--ac:#2563eb;--ac2:#06b6d4;--bd:#e5eaf3}
+*{box-sizing:border-box}body{margin:0;font:15px 'Segoe UI',system-ui,sans-serif;background:radial-gradient(900px 400px at 85% -5%,#dbe7ff,transparent),var(--bg);color:var(--ink);display:flex;min-height:100vh}
+aside{width:240px;background:linear-gradient(180deg,#071a33,#0d2a52);color:#b6c4dc;padding:22px 14px;position:sticky;top:0;height:100vh;flex-shrink:0;box-shadow:4px 0 24px #071a3322}
+aside h1{font-size:16px;color:#fff;margin:0 8px 26px;line-height:1.35;padding-bottom:16px;border-bottom:1px solid #ffffff1a}aside h1 span{background:linear-gradient(90deg,#60a5fa,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent}
+aside a{display:block;padding:11px 14px;border-radius:10px;color:inherit;text-decoration:none;cursor:pointer;margin-bottom:4px;transition:.2s}
+aside a:hover{background:#ffffff12;color:#fff;transform:translateX(3px)}aside a.on{background:linear-gradient(90deg,#2563eb,#0ea5e9);color:#fff;box-shadow:0 6px 16px #2563eb55}
+main{flex:1;padding:28px;min-width:0;animation:fade .35s ease}@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h2{margin:0 0 4px;font-size:24px}.sub{color:var(--mut);margin:0 0 20px}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-bottom:18px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:18px;box-shadow:0 4px 18px #0f1f3d0f;transition:.2s}
+.card:hover{box-shadow:0 8px 26px #0f1f3d1a}
+.kpi{display:flex;align-items:center;gap:14px;border-left:5px solid var(--c,#2563eb)}.kpi:hover{transform:translateY(-3px)}
+.kpi .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:color-mix(in srgb,var(--c,#2563eb) 14%,white)}
+.kpi b{display:block;font-size:30px;line-height:1.1;color:var(--c,#0f1f3d)}.kpi span{color:var(--mut);font-size:13px}
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));margin-bottom:18px}
+.card>b:first-child{display:block;margin-bottom:10px;font-size:15px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px 8px;border-bottom:1px solid var(--bd);font-size:14px}th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em}tr:hover td{background:#f6f9ff}
+.b{padding:3px 11px;border-radius:99px;font-size:11px;font-weight:700;color:#fff;letter-spacing:.03em}.CRITICAL{background:#dc2626}.HIGH{background:#ea580c}.MEDIUM{background:#d97706}.LOW{background:#2563eb}.None{background:#94a3b8}
+button,.btn{background:linear-gradient(90deg,#2563eb,#0ea5e9);color:#fff;border:0;padding:9px 16px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;text-decoration:none;display:inline-block;transition:.2s}
+button:hover,.btn:hover{transform:translateY(-2px);box-shadow:0 6px 14px #2563eb44}button:disabled{opacity:.6}
+button.g,.btn.g{background:#fff;color:var(--ink);border:1px solid var(--bd)}button.r{background:#dc2626}
+label{display:block;font-weight:600;font-size:13px;margin:12px 0 5px}input,textarea,select{width:100%;padding:10px;border:1px solid var(--bd);border-radius:10px;font:inherit;background:#fafcff}input:focus,textarea:focus,select:focus{outline:2px solid #93c5fd;border-color:#2563eb}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.imgs{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.imgs img{width:100%;border-radius:12px;border:1px solid var(--bd)}.empty{text-align:center;color:var(--mut);padding:34px}
+.note{background:#eff6ff;border-left:4px solid var(--ac);padding:11px 15px;border-radius:8px;font-size:13px;margin:12px 0}
+#toast{position:fixed;right:22px;bottom:22px;background:var(--nav);color:#fff;padding:13px 20px;border-radius:12px;display:none;z-index:9;box-shadow:0 10px 30px #0004}
+.hero{position:relative;overflow:hidden;background:linear-gradient(120deg,#071a33,#1d4ed8 60%,#0891b2);color:#fff;border-radius:20px;padding:32px;margin-bottom:20px;box-shadow:0 12px 32px #1d4ed844}
+.hero:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,#ffffff0a 0 1px,transparent 1px 40px),repeating-linear-gradient(0deg,#ffffff0a 0 1px,transparent 1px 40px)}
+.hero:after{content:"⚡";position:absolute;right:28px;top:6px;font-size:120px;opacity:.12}
+.hero>*{position:relative}.hero h2{font-size:28px;margin-bottom:8px}.hero p{margin:16px 0 0}.pill{display:inline-block;background:#ffffff22;border:1px solid #ffffff33;padding:4px 12px;border-radius:99px;font-size:12px;margin:0 6px 10px 0}
+.hero button{background:#fff;color:#1d4ed8}
+.verdict{display:flex;align-items:center;gap:14px;padding:16px 20px;border-radius:14px;margin:12px 0;color:#fff;font-weight:700;font-size:18px}.verdict small{display:block;font-weight:400;font-size:13px;opacity:.95;margin-top:2px}.verdict .e{font-size:32px}
+.v-fault{background:linear-gradient(90deg,#dc2626,#ea580c)}.v-ok{background:linear-gradient(90deg,#059669,#10b981)}.v-na{background:linear-gradient(90deg,#475569,#64748b)}
+@media(max-width:760px){body{flex-direction:column}aside{width:100%;height:auto;position:static;display:flex;flex-wrap:wrap}aside h1{width:100%;margin-bottom:10px}.f2{grid-template-columns:1fr}main{padding:16px}}
+</style></head><body>
+<aside><h1>⚡ Power-Line<br><span>Drone Inspection</span></h1><div id="nav"></div><div id="ver" style="position:absolute;bottom:14px;left:22px;font-size:11px;opacity:.6"></div></aside><main id="app"></main><div id="toast"></div>
+<script>
+const $=s=>document.querySelector(s),app=$('#app');let charts=[];
+const pages={dash:'📊 Dashboard',new:'📤 New Inspection',hist:'🗂 History',faults:'⚠ Faults',alerts:'🔔 Alerts',hw:'📡 Hardware',train:'🧠 Train Model',settings:'⚙ Settings',about:'ℹ About'};
+$('#nav').innerHTML=Object.entries(pages).map(([k,v])=>`<a data-p="${k}" onclick="go('${k}')">${v}</a>`).join('');
+const api=async(u,o)=>{const r=await fetch(u,o);if(!r.ok){let m=r.statusText;try{m=(await r.json()).detail||m}catch{}throw new Error(m)}return r.json()};
+const toast=(m,ms=3000)=>{const t=$('#toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',ms)};
+const badge=s=>`<span class="b ${s}">${s}</span>`,fmt=d=>d?new Date(d).toLocaleString():'';
+function go(p,arg){document.querySelectorAll('aside a').forEach(a=>a.classList.toggle('on',a.dataset.p==p));charts.forEach(c=>c.destroy());charts=[];({dash,new:newIns,hist,faults,alerts,hw,train,settings,about,detail}[p])(arg)}
+const empty=t=>`<div class="empty">${t}</div>`;
+async function dash(){const d=await api('/api/dashboard');
+ const k=(n,l,ic,c)=>`<div class="card kpi" style="--c:${c}"><div class="ic">${ic}</div><div><b data-n="${n}">0</b><span>${l}</span></div></div>`;
+ app.innerHTML=`<div class="hero"><span class="pill">● Manual upload mode</span><span class="pill">Heuristic CV detection</span><h2>AI-Based Power-Line Inspection with a Drone</h2><div>Upload drone images, flag candidate defects, review and export reports. Every figure comes from stored records.</div><p><button onclick="go('new')">🚁 Start Inspection</button></p></div>
+ <div class="grid">${k(d.inspections,'Inspections','📋','#2563eb')}${k(d.images,'Images analyzed','🖼','#0891b2')}${k(d.faults,'Detected candidates','🔍','#7c3aed')}${k(d.open_alerts,'Open alerts','🔔','#e11d48')}
+ ${k(d.severity.CRITICAL,'Critical','🚨','#dc2626')}${k(d.severity.HIGH,'High','🔥','#ea580c')}${k(d.severity.MEDIUM,'Medium','⚠️','#d97706')}${k(d.severity.LOW,'Low','🟦','#2563eb')}</div>
+ <div class="two"><div class="card"><b>Severity distribution</b><canvas id="c1"></canvas></div><div class="card"><b>Faults by type</b><canvas id="c2"></canvas></div><div class="card"><b>Inspections over time</b><canvas id="c3"></canvas></div></div>
+ <div class="card"><b>Latest inspections</b>${d.recent.length?tbl(d.recent):empty('📭 No inspections yet. Start one to see live statistics.')}</div>`;
+ document.querySelectorAll('[data-n]').forEach(e=>{const t=+e.dataset.n;let v=0;const st=Math.max(1,Math.ceil(t/20));const iv=setInterval(()=>{v=Math.min(t,v+st);e.textContent=v;if(v>=t)clearInterval(iv)},25)});
+ Chart.defaults.font.family="Segoe UI,system-ui";Chart.defaults.color='#64748b';
+ const S=d.severity,col=['#dc2626','#ea580c','#d97706','#2563eb'];
+ const ctr={id:'ctr',afterDraw(c){const{ctx,chartArea:a}=c;ctx.save();ctx.textAlign='center';ctx.fillStyle='#0f1f3d';ctx.font='bold 28px Segoe UI';ctx.fillText(d.faults,(a.left+a.right)/2,(a.top+a.bottom)/2+6);ctx.font='12px Segoe UI';ctx.fillStyle='#64748b';ctx.fillText('findings',(a.left+a.right)/2,(a.top+a.bottom)/2+24);ctx.restore()}};
+ if(d.faults){charts.push(new Chart($('#c1'),{type:'doughnut',plugins:[ctr],data:{labels:Object.keys(S),datasets:[{data:Object.values(S),backgroundColor:col,borderWidth:3,borderColor:'#fff'}]},options:{cutout:'68%',plugins:{legend:{position:'bottom'}}}}));
+  charts.push(new Chart($('#c2'),{type:'bar',data:{labels:Object.keys(d.types),datasets:[{data:Object.values(d.types),backgroundColor:'#3b82f6',borderRadius:8}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}}))}
+ else{$('#c1').outerHTML=$('#c2').outerHTML=empty('No findings yet')}
+ if(d.trend.length)charts.push(new Chart($('#c3'),{type:'line',data:{labels:d.trend.map(t=>t.day),datasets:[{data:d.trend.map(t=>t.n),borderColor:'#2563eb',backgroundColor:'#2563eb22',fill:true,tension:.4,pointRadius:4,pointBackgroundColor:'#2563eb'}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}}))
+ else $('#c3').outerHTML=empty('No inspections yet')}
+const tbl=r=>`<div style="overflow:auto"><table><tr><th>ID</th><th>Name</th><th>Date</th><th>Location</th><th>Images</th><th>Faults</th><th>Highest</th><th></th></tr>${r.map(i=>`<tr><td>${i.code}</td><td>${i.name}</td><td>${fmt(i.taken)}</td><td>${i.location||'—'}</td><td>${i.n_images}</td><td>${i.n_faults}</td><td>${badge(i.top)}</td><td><button class="g" onclick="go('detail',${i.id})">View</button> <a class="btn g" href="/api/inspections/${i.id}/report">PDF</a> <button class="r" onclick="del(${i.id})">Delete</button></td></tr>`).join('')}</table></div>`;
+async function del(id){if(confirm('Delete this inspection and its records permanently?')){await api('/api/inspections/'+id,{method:'DELETE'});toast('Deleted');hist()}}
+function newIns(){app.innerHTML=`<h2>New Inspection</h2><p class="sub">JPG, JPEG or PNG, up to 15 MB each. Multiple images allowed.</p><form class="card" id="f"><div class="f2">
+ <div><label>Inspection name *</label><input name="name" required></div><div><label>Date & time</label><input name="taken" type="datetime-local"></div>
+ <div><label>Drone ID</label><input name="drone_id"></div><div><label>Tower / line ID</label><input name="tower"></div>
+ <div><label>Location name</label><input name="location"></div><div><label>Inspector</label><input name="inspector"></div>
+ <div><label>Latitude (optional)</label><input name="lat" type="number" step="any"></div><div><label>Longitude (optional)</label><input name="lon" type="number" step="any"></div></div>
+ <label>Notes</label><textarea name="notes" rows="2"></textarea><label>Images *</label><input type="file" id="files" accept=".jpg,.jpeg,.png" multiple required>
+ <div class="imgs" id="prev" style="margin-top:10px"></div><div class="note">Detection is heuristic computer vision (rust-colour candidates + image quality checks). It is not a trained ML model.</div>
+ <button id="go">Analyze Images</button> <span id="st"></span></form>`;
+ let list=[];const sync=()=>{const dt=new DataTransfer();list.forEach(f=>dt.items.add(f));$('#files').files=dt.files;$('#prev').innerHTML=list.map((f,i)=>`<div><img src="${URL.createObjectURL(f)}"><button type="button" class="g" onclick="rm(${i})">Remove</button></div>`).join('')};
+ window.rm=i=>{list.splice(i,1);sync()};$('#files').onchange=e=>{list=[...e.target.files];sync()};
+ $('#f').onsubmit=async e=>{e.preventDefault();$('#go').disabled=true;$('#st').textContent='Analyzing… please wait';
+  const fd=new FormData(e.target);fd.delete('files');list.forEach(f=>fd.append('files',f));
+  try{const r=await api('/api/inspections',{method:'POST',body:fd});toast('Analysis complete');go('detail',r.id)}catch(x){$('#st').textContent='Error: '+x.message;$('#go').disabled=false}}}
+async function hist(){app.innerHTML=`<h2>Inspection History</h2><p class="sub">Search and filter stored inspections.</p><div class="card"><div class="f2"><input id="q" placeholder="Search name, ID, location" oninput="hl()"><select id="sv" onchange="hl()"><option value="">All severities</option><option>CRITICAL</option><option>HIGH</option><option>MEDIUM</option><option>LOW</option></select></div><div id="hl"></div></div>`;hl()}
+async function hl(){const r=await api(`/api/inspections?q=${encodeURIComponent($('#q').value)}&severity=${$('#sv').value}`);$('#hl').innerHTML=r.length?tbl(r):empty('No matching inspections.')}
+const verdict=(m,fs)=>{const n=fs.length;
+ if(m.quality!=='ok')return `<div class="verdict v-na"><span class="e">⚪</span><div>UNABLE TO DETERMINE<small>Image is ${m.quality.replace('_',' ')}. Manual inspection required.</small></div></div>`;
+ if(n)return `<div class="verdict v-fault"><span class="e">🔴</span><div>FAULT DETECTED (${n} candidate${n>1?'s':''})<small>Highest: ${['CRITICAL','HIGH','MEDIUM','LOW'].find(s=>fs.some(f=>f.severity===s))}. Heuristic result, human verification required.</small></div></div>`;
+ return `<div class="verdict v-ok"><span class="e">🟢</span><div>NO VISIBLE FAULT DETECTED<small>Heuristic check found nothing. This does not guarantee the line is fault-free.</small></div></div>`};
+async function detail(id){const i=await api('/api/inspections/'+id);
+ app.innerHTML=`<h2>${i.name} <small style="color:var(--mut)">${i.code}</small></h2><p class="sub">${fmt(i.taken)} · ${i.location||'No location'} · GPS: ${i.lat!=null&&i.lon!=null?i.lat+', '+i.lon:'not provided'} · Inspector: ${i.inspector||'—'}</p>
+ <p><a class="btn" href="/api/inspections/${i.id}/report">⬇ Download PDF report</a></p>
+ ${i.images.map(m=>`<div class="card" style="margin-bottom:14px"><b>${m.filename}</b> · quality: ${m.quality}${verdict(m,i.faults.filter(f=>f.image_id===m.id))}<div class="imgs"><div>Original<img src="${m.original}"></div><div>Annotated<img src="${m.annotated}"></div></div></div>`).join('')}
+ <div class="card"><b>Findings</b>${i.faults.length?i.faults.map(f=>fault(f)).join(''):empty('No fault candidates recorded for this inspection.')}</div>`}
+const fault=f=>`<div style="border-top:1px solid var(--bd);padding:12px 0"><b>#${f.id} ${f.type}</b> ${badge(f.severity)} · <i>${f.review_status}</i><br><small>Method: ${f.method}</small><p>${f.description}</p><small>Recommended: ${f.action}</small><br><br>
+ <select id="s${f.id}">${['New','Under Review','Verified','False Positive','Resolved'].map(s=>`<option ${s==f.review_status?'selected':''}>${s}</option>`).join('')}</select>
+ <select id="v${f.id}">${['CRITICAL','HIGH','MEDIUM','LOW'].map(s=>`<option ${s==f.severity?'selected':''}>${s}</option>`).join('')}</select>
+ <input id="c${f.id}" placeholder="Reviewer comment" value="${f.comment||''}" style="margin:6px 0"><button onclick="rev(${f.id})">Save review</button></div>`;
+async function rev(id){await api(`/api/faults/${id}/review`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:$('#s'+id).value,severity:$('#v'+id).value,comment:$('#c'+id).value})});toast('Review saved (audit logged)')}
+async function faults(){const r=await api('/api/faults');app.innerHTML=`<h2>Faults</h2><p class="sub">All candidate findings across inspections.</p><div class="card">${r.length?r.map(fault).join(''):empty('No faults recorded.')}</div>`}
+async function alerts(){const r=await api('/api/alerts');app.innerHTML=`<h2>Alert Center</h2><p class="sub">In-app alerts always work. External delivery (email / webhook / Telegram) is shown per alert exactly as the server reported it.</p><div class="card">${r.length?`<div style="overflow:auto"><table><tr><th>ID</th><th>Severity</th><th>Message</th><th>Fault</th><th>Created</th><th>Delivery</th><th>Status</th></tr>${r.map(a=>`<tr><td>${a.id}</td><td>${badge(a.severity)}</td><td>${a.message}</td><td>#${a.fault_id}</td><td>${fmt(a.created)}</td><td><small>${a.delivery}</small></td><td>${a.ack?'Acknowledged':`<button onclick="ak(${a.id})">Acknowledge</button>`}</td></tr>`).join('')}</table></div>`:empty('No alerts. Alerts appear for HIGH/CRITICAL findings, including reviewer-escalated ones.')}</div>`}
+let tYaml=null;
+async function train(){app.innerHTML=`<h2>Train Model</h2><p class="sub">Train a YOLO detector inside the app. You need a labelled dataset (YOLO format). A GPU is much faster; on CPU use few epochs.</p>
+<div class="card"><b>1. Setup</b><p id="tsetup">Checking...</p><button class="g" onclick="tInstall()">Install training packages</button> <small>Large download (several minutes). Run the server without --reload.</small></div>
+<div class="card"><b>2. Dataset</b><label>Upload a .zip (data.yaml + train/valid images and labels)</label><input type="file" id="tzip" accept=".zip"><p><button class="g" onclick="tUpload()">Upload dataset</button> <span id="tds"></span></p>
+<p style="text-align:center;color:var(--mut)">or download from Roboflow</p><div class="f2"><div><label>API key</label><input id="rk" type="password"></div><div><label>Workspace</label><input id="rw"></div><div><label>Project</label><input id="rp"></div><div><label>Version</label><input id="rv" type="number" value="1"></div></div></div>
+<div class="card"><b>3. Train</b><div class="f2"><div><label>Epochs</label><input id="ep" type="number" value="50"></div><div><label>Image size</label><input id="isz" type="number" value="640"></div></div>
+<p><button onclick="tStart()">▶ Start training</button> <button class="r" onclick="tStop()">■ Stop</button></p><div id="tres"></div>
+<pre id="tlog" style="background:#0b1f3a;color:#9fe3a8;padding:12px;border-radius:10px;max-height:300px;overflow:auto;font-size:12px"></pre></div>`;
+ tPoll();window._tp=setInterval(()=>{if(!$('#tlog')){clearInterval(window._tp);return}tPoll()},3000)}
+async function tPoll(){const s=await api('/api/train/status');if(!$('#tlog'))return;
+ $('#tsetup').textContent=s.ultralytics?'✅ ultralytics installed'+(s.roboflow?' · roboflow installed':' · roboflow missing (only needed for Roboflow download)'):'❌ Training packages not installed yet.';
+ $('#tlog').textContent=s.log.join('\n');
+ $('#tres').innerHTML=s.running?`<div class="note">⏳ Running: ${s.job}...</div>`:s.exit_code===0?`<div class="note">✅ ${s.job} finished.${s.job==='train'&&s.model.metrics?` Model installed. mAP50 = ${s.model.metrics.map50} (measured on your validation set).`:''}</div>`:s.exit_code!=null?`<div class="note" style="border-color:#dc2626">❌ ${s.job} failed (exit ${s.exit_code}). See the log.</div>`:''}
+async function tInstall(){try{await api('/api/train/install',{method:'POST'});toast('Installing... watch the log')}catch(e){toast(e.message,5000)}}
+async function tUpload(){const f=$('#tzip').files[0];if(!f)return toast('Choose a zip first');const fd=new FormData();fd.append('file',f);$('#tds').textContent='Uploading...';try{const r=await api('/api/train/dataset',{method:'POST',body:fd});tYaml=r.data_yaml;$('#tds').textContent='✅ Dataset ready'}catch(e){$('#tds').textContent='❌ '+e.message}}
+async function tStart(){const b={epochs:+$('#ep').value,imgsz:+$('#isz').value};if(tYaml)b.data_yaml=tYaml;else{b.rf_key=$('#rk').value;b.rf_workspace=$('#rw').value;b.rf_project=$('#rp').value;b.rf_version=+$('#rv').value}
+ try{await api('/api/train/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});toast('Training started')}catch(e){toast(e.message,6000)}}
+async function tStop(){await api('/api/train/stop',{method:'POST'});toast('Stopping...')}
+async function settings(){const [r,m]=await Promise.all([api('/api/settings'),api('/api/model')]);
+ app.innerHTML=`<h2>Settings</h2><p class="sub">Detection thresholds, severity rules and notifications.</p>
+ <div class="card"><b>Trained model</b><p>${m.installed?'✅ models/best.pt loaded'+(m.metrics?` · mAP50 ${m.metrics.map50} (measured on your own validation set)`:' · no metrics.json found'):'⏳ Not installed. Detection uses heuristic rules only. Open the Train Model page.'}</p></div>
+ <div class="card"><b>Rules (saved to settings.json)</b><div class="f2">${Object.entries(r).map(([k,v])=>`<div><label>${k}</label><input data-k="${k}" value="${Array.isArray(v)?v.join(','):v}"></div>`).join('')}</div><p><button onclick="saveSet()">Save settings</button></p></div>
+ <div class="card"><b>Notifications and export</b><p>Configure email / webhook / Telegram in .env (see .env.example), restart, then test:</p><button onclick="testN()">Send test notification</button> <a class="btn g" href="/api/export/faults.csv">⬇ Export faults CSV</a><p id="tn"></p></div>`}
+async function saveSet(){const b={};document.querySelectorAll('[data-k]').forEach(i=>{const k=i.dataset.k,v=i.value;b[k]=k==='alert_levels'?v.split(',').map(x=>x.trim()).filter(Boolean):(k.endsWith('_severity')?v.trim():parseFloat(v))});try{await api('/api/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});toast('Settings saved')}catch(e){toast('Error: '+e.message,5000)}}
+async function testN(){$('#tn').textContent='Sending...';const r=await api('/api/alerts/test',{method:'POST'});$('#tn').textContent=r.result}
+async function ak(id){await api(`/api/alerts/${id}/acknowledge`,{method:'PATCH'});toast('Acknowledged');alerts()}
+async function hw(){const h=await api('/api/hardware/status');app.innerHTML=`<h2>Hardware Integration</h2><p class="sub">Drone, ESP32-CAM, GPS, MPU6050, MLX90640, VL53L1X</p><div class="grid">${[['Connection',h.connected?'Connected':'Not Connected'],['Last image',h.last_image||'None received'],['Last sensor reading',h.last_reading||'None received'],['GPS',h.gps],['Thermal data',h.thermal]].map(([a,b])=>`<div class="card kpi"><span>${a}</span><b style="font-size:18px">${b}</b></div>`).join('')}</div><div class="note">${h.message}</div>`}
+function about(){app.innerHTML=`<h2>AI-Based Power-Line Inspection with a Drone</h2><div class="card"><p><b>Problem:</b> manual line inspection is slow and exposes workers to hazards.</p><p><b>Solution:</b> drone images are uploaded, quality-checked, scanned by heuristic computer vision for candidate defects, reviewed by a human, stored, and exported as PDF.</p><p><b>Flow:</b> Drone/sensors → upload → FastAPI + OpenCV → SQLite → dashboard → reports and alerts.</p><p><b>Fault detection coverage (honest status)</b></p><table><tr><th>Fault category</th><th>Status</th></tr><tr><td>Image quality (blur / dark / small)</td><td>✅ Implemented</td></tr><tr><td>Rust / corrosion</td><td>✅ Candidate detection (colour heuristic)</td></tr><tr><td>Broken / disconnected wire</td><td>✅ Heuristic gap candidate (+ trained model plug-in)</td></tr><tr><td>Dropped wire</td><td>🔧 Plug-in ready: needs your trained weights (models/best.pt)</td></tr><tr><td>Abnormal wire sag</td><td>✅ Heuristic curve-fit candidate (needs span data to confirm)</td></tr><tr><td>Wire / insulator damage</td><td>🔧 Plug-in ready: needs your trained weights (models/best.pt)</td></tr><tr><td>Tilted / displaced tower</td><td>✅ Heuristic angle candidate</td></tr><tr><td>Damaged tower, fallen tower</td><td>🔧 Plug-in ready: needs your trained weights (models/best.pt)</td></tr><tr><td>Thermal abnormality</td><td>✅ Rule-based on sensor data (API: /api/inspections/{id}/thermal)</td></tr></table><div class="note">${'Algorithmic results require qualified human verification before maintenance or electrical-safety decisions.'}</div></div>`}
+go('dash');
+fetch('/api/health').then(r=>r.json()).then(d=>$('#ver').textContent='Build '+(d.version||'old'));
+let lastN=null;async function poll(){try{const a=await api('/api/alerts'),u=a.filter(x=>!x.ack),n=u.length;document.querySelector('[data-p=alerts]').textContent=pages.alerts+(n?` (${n})`:'');
+ if(lastN!==null&&n>lastN){toast('🔔 New alert: '+u[0].message,6000);if(window.Notification&&Notification.permission==='granted')new Notification('Power-line alert',{body:u[0].message})}lastN=n}catch{}}
+if(window.Notification&&Notification.permission==='default')Notification.requestPermission();setInterval(poll,10000);poll();
+</script></body></html>

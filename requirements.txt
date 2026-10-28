@@ -1,0 +1,11 @@
+fastapi==0.115.0
+uvicorn==0.30.6
+sqlalchemy==2.0.35
+opencv-python-headless==4.10.0.84
+numpy<2.1
+reportlab==4.2.5
+python-multipart==0.0.9
+pytest
+httpx
+# optional, only after you have trained weights:
+# ultralytics
